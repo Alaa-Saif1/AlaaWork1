@@ -1,0 +1,6 @@
+"0",""
+"0","# check the relationship between horsepower (hP) and (mpg) differentiating between "
+"0","# the type of engine:"
+"0",""
+"0","ggplot(mtcars, aes(x = hp, y = mpg, color = vs)) + geom_point() + geom_smooth()"
+"0",""

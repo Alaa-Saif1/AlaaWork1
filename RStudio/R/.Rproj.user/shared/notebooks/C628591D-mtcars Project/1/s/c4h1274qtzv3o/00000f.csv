@@ -1,0 +1,4 @@
+"0",""
+"0","g <- ggplot(data = mtcars, aes(x=am, y=mpg), draw_quantiles=TRUE)"
+"0","g+theme_bw() + geom_violin(fill = ""darkkhaki"") + labs(title=""Violin Plot"",  x=""Transmission (0 = automatic, 1 = manual)"",y=""Miles Per Gallon"")"
+"0",""

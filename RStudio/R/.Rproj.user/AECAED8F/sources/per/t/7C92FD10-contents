@@ -1,0 +1,242 @@
+---
+title: "Analysis Project for 'mtcars' dataset"
+author: "Alaa Al-abdali"
+date: "2023-07-19"
+output: word_document
+---
+
+# The aim of the project:
+
+#### Explore the relationship between a set of variables and miles per gallon (MPG) to solve the following two questions:
+
+#### 1- Is automatic or manual transmission better for "MPG".
+#### 2- Does the automatic or manual transmission have higher horsepower depending on "MPG".
+
+
+# Load necessary libraries
+
+```{r}
+
+library(ggplot2)
+library(GGally)
+library(dplyr)
+
+```
+
+# Load the mtcars Data set
+
+```{r}
+
+# Since the mtcars data set is a built-in data set in R, we can load it by using the following command:
+
+data("mtcars")
+
+```
+
+```{r}
+
+# view first six rows of mtcars data set (By default is 6):
+
+head(mtcars)
+
+```
+# Variables Description:
+
+#### mpg =  Miles/(US) gallon
+#### cyl = Number of cylinders
+#### disp = Displacement (cu.in.)
+#### hp =  Gross horsepower 
+#### drat = Rear axle ratio
+#### wt =  Weight (1000 lbs) 
+#### qsec = 1/4 mile time 
+#### vs = Engine (0 = V-shaped, 1 = straight)
+#### am = Transmission (0 = automatic, 1 = manual) 
+#### gear =  Number of forward gears
+#### carb = Number of carburetors
+
+
+```{r}
+
+# summarize mtcars data set ( summarize each variable in the data set):
+
+summary(mtcars)
+
+```
+
+#### Here for each of the 11 variables we can see the following information:
+
+#### Min: The minimum value.
+#### 1st Qu: The value of the first quartile (25th percentile).
+#### Median: The median value.
+#### Mean: The mean value.
+#### 3rd Qu: The value of the third quartile (75th percentile).
+#### Max: The maximum value.
+
+
+```{r}
+
+# display rows and columns:
+
+dim(mtcars) # get the number of rows and number of columns
+
+```
+
+#### There are 32 cars with descriptions on 11 different categorical variables.
+
+
+
+```{r}
+
+# display column names:
+
+names(mtcars)
+```
+
+```{r}
+
+# Check the structure of mtcars data:
+
+str(mtcars)
+
+```
+
+```{r}
+
+# Check for missing data:
+
+colSums(is.na(mtcars))
+
+```
+#### There are no missing values, so we are good.
+
+
+```{r}
+
+# Converting the variables with discrete values to factor variables:
+
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$vs <- as.factor(mtcars$vs)
+mtcars$am <- as.factor(mtcars$am)
+mtcars$gear <- as.factor(mtcars$gear)
+mtcars$carb <- as.factor(mtcars$carb)
+
+```
+
+```{r}
+
+# Explore the statistics of our response variable mpg (miles per gallon):
+
+summary(mtcars$mpg) 
+
+```
+
+# Exploratory Data Analysis
+
+```{r}
+
+# To determine the most effective transmission type for achieving higher miles per gallon (mpg), we will examine the correlation between mpg and the type of transmission (am): 
+
+```
+
+```{r}
+
+g <- ggplot(data = mtcars, aes(x=am, y=mpg), draw_quantiles=TRUE)
+g+theme_bw() + geom_violin(fill = "darkkhaki") + labs(title="Violin Plot",  x="Transmission (0 = automatic, 1 = manual)",y="Miles Per Gallon")
+
+```
+
+# Observation: 
+
+#### The provided exploratory fiddle chart compares the fuel efficiency (MPG) of vehicles with automatic and manual transmissions. The graph indicates a significant increase in MPG for cars equipped with a manual transmission compared to those with an automatic transmission. The distribution figures shown in the graph indicate that the MPG values for automatic transmission cars are tightly clustered around the median and concentrated around the first quartile.
+
+
+# recommendation:
+
+#### According to the predictions indicated by the graph, I recommend buying cars with an automatic engine because of the lower cost in terms of (mpg), given that cars with a manual engine have more consumption.
+
+```{r}
+
+# check the relationship between horsepower (hP) and (mpg) differentiating between 
+# the type of engine:
+
+ggplot(mtcars, aes(x = hp, y = mpg, color = vs)) + geom_point() + geom_smooth()
+
+```
+
+# Observation:
+
+#### We note here that the relationship is slightly linear with only one outlier. The relationship indicates that straight engines with lower horsepower produced higher mpg among the middle values, while for V-shaped engines, despite higher horsepower, mpg values fell below average in the first quantile range.
+
+
+
+```{r}
+
+# check the pairwise correlation between our desired variables:
+
+ggpairs(data = mtcars %>% select(mpg,hp,disp,vs,am))
+
+```
+
+# Observation:
+
+#### We can see that the correlation coefficient is higher for the displacement (disp) of the engine, though the relationship is inversely related. The response variable mpg has a linear distribution with right skew.
+
+
+# Deduction
+
+#### Hypothesis Test and Confidence Interval:
+
+#### Ho: The null hypothesis states that there is no difference between the transmission types.
+
+#### Ha: The alternative hypothesis states that there is a significant difference between the mpg for different transmission types.
+
+```{r}
+
+# T-Test transmission type and MPG :
+
+test_result <- t.test(mpg ~ am, data=mtcars)
+test_result$p.value
+
+```
+
+#### With a p-value as low as 0.0013, we can reject the null hypothesis that the difference between transmission types is 0.
+
+```{r}
+
+test_result$estimate
+
+```
+#### The difference estimate between the 2 transmissions is 7.24494 MPG in favor of the manual.
+
+
+# Modelling
+
+
+#### Since there are more than two explanatory variables, we can go for a multilinear regression model and fit the full model for data.
+
+```{r}
+
+model <- lm(mpg ~ ., data = mtcars)
+summary(model)
+
+```
+
+#### Since none of the coefficients have a p-value less than 0.05 I  cannot conclude which variables are more statistically significant.
+
+
+```{r}
+
+# Backward Elimination method:
+
+red_model <- step(model, direction = "backward", trace = FALSE)
+summary(red_model)
+```
+#### The new model has 4 variables (cylinders, horsepower, weight, and transmission). 
+
+#### The R-squared value of 0.8659 confirms that this model explains about 87% of the variance in MPG. The p-values also are statistically significant because they have a p-value less than 0.05. 
+
+
+# Conclusion
+
+#### The coefficients conclude that increasing the number of cylinders from 4 to 6 with decrease the MPG by 3.03. Further increasing the cylinders to 8 with decreasing the MPG by 2.16. Increasing the horsepower decreases MPG by 3.21 for every 100 horsepower. Weight decreases the MPG by 2.5 for each 1000 lbs increase. A Manual transmission improves the MPG by 1.81.
+

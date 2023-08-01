@@ -1,0 +1,4 @@
+"0",""
+"0","# view first six rows of mtcars data set (By default is 6):"
+"0",""
+"0","head(mtcars)"

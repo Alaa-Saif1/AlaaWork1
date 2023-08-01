@@ -1,0 +1,5 @@
+"0",""
+"0","# check the pairwise correlation between our desired variables:"
+"0",""
+"0","ggpairs(data = mtcars %>% select(mpg,hp,disp,vs,am))"
+"0",""
